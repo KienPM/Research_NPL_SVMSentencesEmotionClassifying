@@ -30,11 +30,8 @@ public class Trainer {
     HashMap<String, Integer> map;
     // Stores processed training data
     private ArrayList<Item> data;
-    /*
-     Stores orther words in training data with number of sentences it appears in
-     and order of it in bag of word
-     */
-    private HashMap<String, Pair<Integer, Integer>> bagOfWord;
+    // Stores individual words in training data with their order of it in bag of word
+    private HashMap<String, Integer> bagOfWord;
 
     public Trainer() {
         Analyzer.loadStopWords(Config.STOP_WORDS_FILE);
@@ -70,10 +67,11 @@ public class Trainer {
      * @throws IOException
      */
     public void train(File trainingDataFolder) throws IOException {
-        // Make training file for svm_multiclass_learn.exe, creat bag of words
+        // Make vector file as input for svm_multiclass_learn.exe, creat bag of words
         File[] files = trainingDataFolder.listFiles();
         UTF8FileUtility.createWriter(Config.BAG_OF_WORDS_FILE);
         for (int i = 0; i < files.length; ++i) {
+            // Processes each file: read file, count words
             if (getExtension(files[i]).equals("xlsx")) {
                 ArrayList<String> lines = ReadXlsxInput.getLines(files[i].getAbsolutePath());
                 process(lines);
@@ -119,11 +117,8 @@ public class Trainer {
             data.add(new Item(emotionIndex, m));
 
             for (String key : m.keySet()) {
-                if (bagOfWord.containsKey(key)) {
-                    Pair<Integer, Integer> pair = bagOfWord.get(key);
-                    bagOfWord.put(key, new Pair<Integer, Integer>(pair.getKey(), pair.getValue() + 1));
-                } else {
-                    bagOfWord.put(key, new Pair<Integer, Integer>(bagOfWord.size() + 1, 1));
+                if (!bagOfWord.containsKey(key)) {
+                    bagOfWord.put(key, bagOfWord.size() + 1);
                     UTF8FileUtility.write(key + "\n");
                 }
             }
@@ -147,11 +142,8 @@ public class Trainer {
             data.add(new Item(emotionIndex, m));
 
             for (String key : m.keySet()) {
-                if (bagOfWord.containsKey(key)) {
-                    Pair<Integer, Integer> pair = bagOfWord.get(key);
-                    bagOfWord.put(key, new Pair<Integer, Integer>(pair.getKey(), pair.getValue() + 1));
-                } else {
-                    bagOfWord.put(key, new Pair<Integer, Integer>(bagOfWord.size() + 1, 1));
+                if (!bagOfWord.containsKey(key)) {
+                    bagOfWord.put(key, bagOfWord.size() + 1);
                     UTF8FileUtility.write(key + "\n");
                 }
             }
@@ -167,14 +159,13 @@ public class Trainer {
 
         for (Item item : data) {
             HashMap<String, Integer> m = item.getContent();
-            UTF8FileUtility.write(item.getEmotionIndex() + " ");
+            UTF8FileUtility.write(String.valueOf(item.getEmotionIndex()));
             ArrayList<Pair<Integer, Double>> features = new ArrayList<>();
             for (String key : m.keySet()) {
+                int order = bagOfWord.get(key);
                 int f = m.get(key);
-                Pair<Integer, Integer> pair = bagOfWord.get(key);
-                int h = pair.getValue();
-                double w = (1 + Math.log(f)) * Math.log(1.0 * nSentences / h);
-                features.add(new Pair<Integer, Double>(pair.getKey(), w));
+                double w = 1 + Math.log(f);
+                features.add(new Pair<>(order, w));
             }
             // Sort features 
             Comparator<Pair<Integer, Double>> comparator = new Comparator<Pair<Integer, Double>>() {
@@ -192,7 +183,7 @@ public class Trainer {
             Collections.sort(features, comparator);
             // Write features
             for (Pair feature : features) {
-                UTF8FileUtility.write(feature.getKey() + ":" + feature.getValue() + " ");
+                UTF8FileUtility.write(" " + feature.getKey() + ":" + feature.getValue());
             }
             UTF8FileUtility.write("\n");
         }

@@ -13,9 +13,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Classifier;
 import model.Trainer;
-import ultis.Analyzer;
-import ultis.ReadXlsxInput;
-
 /**
  *
  * @author Ken

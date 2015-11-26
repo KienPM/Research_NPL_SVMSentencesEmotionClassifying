@@ -14,7 +14,6 @@ import java.util.HashMap;
 import javafx.util.Pair;
 import ultis.Analyzer;
 import ultis.Config;
-import ultis.ReadXlsxInput;
 import vn.hus.nlp.tokenizer.VietTokenizer;
 import vn.hus.nlp.utils.UTF8FileUtility;
 
@@ -27,8 +26,8 @@ public class Classifier {
     private VietTokenizer tokenizer;
     // Stores map emotions with their indexes
     HashMap<String, Integer> map;
-    // Stores processed input data
-    private ArrayList<HashMap<String, Integer>> data;
+    // Stores input data vector
+    private HashMap<String, Integer> inputVector;
     // Maps other words with their order
     private HashMap<String, Integer> bagOfWord;
 
@@ -37,7 +36,7 @@ public class Classifier {
         tokenizer = new VietTokenizer();
         map = new HashMap<>();
         map();
-        data = new ArrayList<>();
+        inputVector = new HashMap<>();
         bagOfWord = new HashMap<>();
         loadBagOfWords();
     }
@@ -47,7 +46,7 @@ public class Classifier {
         Analyzer.loadStopWords(Config.STOP_WORDS_FILE);
         map = new HashMap<>();
         map();
-        data = new ArrayList<>();
+        inputVector = new HashMap<>();
         bagOfWord = new HashMap<>();
         loadBagOfWords();
     }
@@ -83,28 +82,6 @@ public class Classifier {
     }
 
     /**
-     * Processes data for String[]
-     *
-     * @param lines
-     */
-    public void process(String[] lines) {
-        for (int i = 0; i < lines.length; ++i) {
-
-        }
-    }
-
-    /**
-     * Processes data for ArrayList<String>
-     *
-     * @param lines
-     */
-    public void process(ArrayList<String> lines) {
-        for (String line : lines) {
-
-        }
-    }
-
-    /**
      * Classifies a sentence
      *
      * @param sentence
@@ -115,10 +92,12 @@ public class Classifier {
         HashMap<String, Integer> m = Analyzer.analyze(sentence);
         ArrayList<Pair<Integer, Double>> features = new ArrayList<>();
         for (String key : m.keySet()) {
-//            System.out.println(key);
-            int order = bagOfWord.get(key);
-            double w = 0;
-            features.add(new Pair<Integer, Double>(order, w));
+            if (bagOfWord.containsKey(key)) {
+                int order = bagOfWord.get(key);
+                int f = m.get(key);
+                double w = 1 + Math.log(f);
+                features.add(new Pair<Integer, Double>(order, w));
+            }
         }
         // Sort features 
         Comparator<Pair<Integer, Double>> comparator = new Comparator<Pair<Integer, Double>>() {
@@ -136,15 +115,15 @@ public class Classifier {
         Collections.sort(features, comparator);
         // Write features
         UTF8FileUtility.createWriter(Config.SVM_CLASSIFYING_DATA_FILE);
-        UTF8FileUtility.write("0 ");
+        UTF8FileUtility.write("0");
         for (Pair feature : features) {
-            UTF8FileUtility.write(feature.getKey() + ":" + feature.getValue() + " ");
+            UTF8FileUtility.write(" " + feature.getKey() + ":" + feature.getValue());
         }
         UTF8FileUtility.closeWriter();
 
         // Call svm_multiclass_classify.exe
         Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", "classify.bat"});
-        
+
         return "";
     }
 }
