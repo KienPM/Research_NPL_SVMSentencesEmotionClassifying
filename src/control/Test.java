@@ -13,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Classifier;
 import model.Trainer;
+import ultis.ReadFile;
+
 /**
  *
  * @author Ken
@@ -20,19 +22,27 @@ import model.Trainer;
 public class Test {
 
     public static void main(String[] args) {
-//        Trainer trainer = new Trainer();
-//        try {
-//            trainer.train(new File("G:\\Training data\\SVM Sentence Emotion Classifying"));
-//        } catch (IOException ex) {
-//            Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
-        Classifier classifier = new Classifier();
+        Trainer trainer = new Trainer();
         try {
-            classifier.classify("Nhìn ra ngoài cửa sổ phòng ngủ");
+            System.out.println(trainer.train(new File("G:\\Training data\\SVM Sentence Emotion Classifying")));
         } catch (IOException ex) {
             Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+//        Classifier classifier = new Classifier();
+//        try {
+//            classifier.classify("Nhìn ra ngoài cửa sổ phòng ngủ");
+//        } catch (IOException ex) {
+//            Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        try {
+//            ArrayList<String> lines = ReadFile.getLines(new File("G:\\Training data\\SVM Sentence Emotion Classifying\\training_data.xlsx"));
+//            for (int i = 0; i < 3; ++i) {
+//                System.out.println(lines.get(i));
+//            }
+//        } catch (IOException ex) {
+//            Logger.getLogger(Test.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
-    
+
 }

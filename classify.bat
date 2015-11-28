@@ -1,1 +1,1 @@
-svm_multiclass_classify svm-classify-input-data.txt svm-model.txt output.txt
+svm_multiclass_classify svm-classifying-input-data.txt svm-model.txt output.txt

@@ -1,0 +1,1 @@
+svm_multiclass_classify svm-testing-input-data.txt svm-model.txt output.txt

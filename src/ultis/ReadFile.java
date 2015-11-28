@@ -5,6 +5,7 @@
  */
 package ultis;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -19,7 +20,21 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Ken
  */
-public class ReadXlsxInput {
+public class ReadFile {
+    
+    /**
+     * Gets extension of given file
+     *
+     * @param file
+     * @return String
+     */
+    public static String getExtension(File file) {
+        if (file.isDirectory()) {
+            return "";
+        }
+        String fileName = file.getName();
+        return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
 
     /**
      * Get data from given training file
@@ -29,7 +44,14 @@ public class ReadXlsxInput {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public static ArrayList<String> getLines(String path) throws FileNotFoundException, IOException {
+    public static ArrayList<String> getLines(File file) throws FileNotFoundException, IOException {
+        if (getExtension(file).equalsIgnoreCase("xlsx")) {
+            return readXlsxFile(file.getAbsolutePath());
+        }
+        return readTxtFile(file.getAbsolutePath());
+    }
+    
+    private static ArrayList<String> readXlsxFile(String path) throws FileNotFoundException, IOException {
         ArrayList<String> lines = new ArrayList<>();
 
         // Create file input stream from input file
@@ -57,4 +79,10 @@ public class ReadXlsxInput {
         return lines;
     }
     
+    private static ArrayList<String> readTxtFile(String path) {
+        ArrayList<String> lines = new ArrayList<>();
+        
+        
+        return lines;
+    }
 }

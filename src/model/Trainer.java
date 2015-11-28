@@ -5,9 +5,10 @@
  */
 package model;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +16,7 @@ import java.util.HashMap;
 import javafx.util.Pair;
 import ultis.Analyzer;
 import ultis.Config;
-import ultis.ReadXlsxInput;
+import ultis.ReadFile;
 import vn.hus.nlp.tokenizer.VietTokenizer;
 import vn.hus.nlp.utils.UTF8FileUtility;
 
@@ -66,67 +67,34 @@ public class Trainer {
      * @param trainingDataFolder
      * @throws IOException
      */
-    public void train(File trainingDataFolder) throws IOException {
+    public String train(File trainingDataFolder) throws IOException {
+        // Clear data in case of train many times
+        data.clear();
+        bagOfWord.clear();
+        
         // Make vector file as input for svm_multiclass_learn.exe, creat bag of words
         File[] files = trainingDataFolder.listFiles();
         UTF8FileUtility.createWriter(Config.BAG_OF_WORDS_FILE);
         for (int i = 0; i < files.length; ++i) {
-            // Processes each file: read file, count words
-            if (getExtension(files[i]).equals("xlsx")) {
-                ArrayList<String> lines = ReadXlsxInput.getLines(files[i].getAbsolutePath());
-                process(lines);
-            } else {
-                String[] lines = UTF8FileUtility.getLines(files[i].getAbsolutePath());
-                process(lines);
-            }
+            ArrayList<String> lines = ReadFile.getLines(files[i]);
+            process(lines);
         }
         UTF8FileUtility.closeWriter();
         writeTrainingFile();
 
         // Call svm_multiclass_learn.exe
-        Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", "learn.bat"});
-    }
-
-    /**
-     * Gets extension of given file
-     *
-     * @param file
-     * @return String
-     */
-    public String getExtension(File file) {
-        if (file.isDirectory()) {
-            return "";
+        Process p = Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", "learn.bat"});
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String status = "";
+        String line = null;
+        while ((line = br.readLine()) != null) {
+            status += line + "\n";
         }
-        String fileName = file.getName();
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
-    }
+        return status;
+    };
 
     /**
-     * Processes data for String[]
-     *
-     * @param lines
-     */
-    public void process(String[] lines) {
-        for (int i = 0; i < lines.length; ++i) {
-            int index = lines[i].indexOf("|");
-            String emotion = lines[i].substring(0, index);
-            String sentence = lines[i].substring(index + 1).toLowerCase();
-            sentence = tokenizer.tokenize(sentence)[0];
-            HashMap<String, Integer> m = Analyzer.analyze(sentence);
-            int emotionIndex = map.get(emotion);
-            data.add(new Item(emotionIndex, m));
-
-            for (String key : m.keySet()) {
-                if (!bagOfWord.containsKey(key)) {
-                    bagOfWord.put(key, bagOfWord.size() + 1);
-                    UTF8FileUtility.write(key + "\n");
-                }
-            }
-        }
-    }
-
-    /**
-     * Processes data for ArrayList<String>
+     * Processes data from input each file
      *
      * @param lines
      */
