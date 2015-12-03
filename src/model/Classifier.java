@@ -145,11 +145,15 @@ public class Classifier {
     public void process(ArrayList<String> lines) {
         for (String line : lines) {
             int index = line.indexOf("|");
-            String emotion = line.substring(0, index);
+            String emotion = line.substring(0, index).toLowerCase();
             String sentence = line.substring(index + 1).toLowerCase();
             sentence = tokenizer.tokenize(sentence)[0];
             HashMap<String, Integer> m = Analyzer.analyze(sentence);
-
+            
+            if (map.get(emotion) == null) {
+                System.out.println(emotion);
+                continue;
+            }
             int emotionIndex = map.get(emotion);
             data.add(new Item(emotionIndex, m));
         }
@@ -167,6 +171,9 @@ public class Classifier {
             UTF8FileUtility.write(String.valueOf(item.getEmotionIndex()));
             ArrayList<Pair<Integer, Double>> features = new ArrayList<>();
             for (String key : m.keySet()) {
+                if (!bagOfWord.containsKey(key)) {
+                    continue;
+                }
                 int order = bagOfWord.get(key);
                 int f = m.get(key);
                 double w = 1 + Math.log(f);

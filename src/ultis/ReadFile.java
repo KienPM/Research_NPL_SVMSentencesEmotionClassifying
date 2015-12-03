@@ -9,8 +9,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Scanner;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -21,7 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  * @author Ken
  */
 public class ReadFile {
-    
+
     /**
      * Gets extension of given file
      *
@@ -50,7 +54,7 @@ public class ReadFile {
         }
         return readTxtFile(file.getAbsolutePath());
     }
-    
+
     private static ArrayList<String> readXlsxFile(String path) throws FileNotFoundException, IOException {
         ArrayList<String> lines = new ArrayList<>();
 
@@ -78,11 +82,8 @@ public class ReadFile {
 
         return lines;
     }
-    
-    private static ArrayList<String> readTxtFile(String path) {
-        ArrayList<String> lines = new ArrayList<>();
-        
-        
-        return lines;
+
+    private static ArrayList<String> readTxtFile(String path) throws IOException {
+        return (ArrayList<String>) Files.readAllLines(Paths.get(path));
     }
 }

@@ -252,7 +252,7 @@ public class UI extends javax.swing.JFrame {
 
     private void btnBrowseTrainingDataFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseTrainingDataFolderActionPerformed
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File("G:\\Training data"));
+        fileChooser.setCurrentDirectory(new File("F:\\Training data"));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.showOpenDialog(this);
         trainingDataFolder = fileChooser.getSelectedFile();
@@ -276,7 +276,7 @@ public class UI extends javax.swing.JFrame {
 
     private void btnBrowseTestingDataFolderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBrowseTestingDataFolderActionPerformed
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File("G:\\Training data"));
+        fileChooser.setCurrentDirectory(new File("F:\\Training data"));
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.showOpenDialog(this);
         testingDataFolder = fileChooser.getSelectedFile();
