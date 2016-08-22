@@ -302,11 +302,7 @@ public class UI extends javax.swing.JFrame {
         String inputSentence = txaInputSentence.getText();
         if (inputSentence.length() > 0) {
             try {
-                classifier.classify(inputSentence);
-                Scanner scanner = new Scanner(new FileInputStream(Config.SVM_OUPUT));
-                String line = scanner.nextLine();
-                int index = Integer.parseInt(line.substring(0, line.indexOf(" ")));
-                String emotion = Config.EMOTIONS[index - 1];
+                String emotion = classifier.classify(inputSentence);
                 JOptionPane.showMessageDialog(this, emotion);
             } catch (IOException ex) {
                 Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);

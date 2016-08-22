@@ -7,12 +7,16 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.util.Pair;
 import ultis.Analyzer;
 import ultis.Config;
@@ -113,8 +117,19 @@ public class Classifier {
 
         // Call svm_multiclass_classify.exe
         Process p = Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", "classify.bat"});
+        try {
+            p.waitFor();
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Classifier.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        return "";
+        // Read output
+        Scanner scanner = new Scanner(new FileInputStream(Config.SVM_OUPUT));
+        String line = scanner.nextLine();
+        int index = Integer.parseInt(line.substring(0, line.indexOf(" ")));
+        String emotion = Config.EMOTIONS[index - 1];
+
+        return emotion;
     }
 
     public String test(File testingDataFolder) throws IOException {
@@ -149,7 +164,7 @@ public class Classifier {
             String sentence = line.substring(index + 1).toLowerCase();
             sentence = tokenizer.tokenize(sentence)[0];
             HashMap<String, Integer> m = Analyzer.analyze(sentence);
-            
+
             if (map.get(emotion) == null) {
                 System.out.println(emotion);
                 continue;
